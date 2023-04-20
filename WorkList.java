@@ -5,7 +5,6 @@ import java.util.HashSet;
  * Immutable. Jobs on top(wifth, M, [][X]), workers in the left(hieght, n, [X][]).
 */
 public class WorkList {
-    private static final int HashSet = 0;
     public final Matrix matrix;
     public WorkList(Matrix matrix){
         if(matrix.getN() != matrix.getM()){
@@ -21,18 +20,21 @@ public class WorkList {
         this.matrix = m;
     }
     public WorkList(int size){
-        this.matrix = new Matrix(size, size, false);
+        this.matrix = new Matrix(size, size, true);
     }
     public static void main(String[] args){
         WorkList a = new WorkList(3);
         a.matrix.display();
         int[] b = a.optimizeBruteForce();
+        System.out.println();
+        System.out.println(a.valueOfPath(b));
+        System.out.println();
         for(int i = 0; i != b.length; i++){
             System.out.println(b[i]);
         }
     }
     /**
-     * Find most efficient solution oprimizing for larger size
+     * Find most efficient solution optimizing for larger size
     */
     public int[] optimizeBruteForce(){
         Set<Integer> jobs = new HashSet<>();
@@ -40,7 +42,7 @@ public class WorkList {
             jobs.add(i);
         }
         int[] board = new int[matrix.getM()];
-        return optimizeBruteForce(jobs, board, 0);
+        return optimizeBruteForce(jobs, board);
     }
     public static int[] cloneArray(int[] array){
         int[] goal = new int[array.length];
@@ -57,9 +59,10 @@ public class WorkList {
      * @param jobBoard jobs that have been assigned up to 'numOfAssigned'. After 'numOfAssigned jobs' there are no promisses.
      * @param numOfJobs number of pre-assigned jobs from index-0
     */
-    public int[] optimizeBruteForce(Set<Integer> unassignedJobs, int[] jobBoard, int numOfAssigned){
+    public int[] optimizeBruteForce(Set<Integer> unassignedJobs, int[] jobBoard){
         //Clone to avoid rep exposure
         jobBoard = cloneArray(jobBoard);
+        int numOfAssigned = jobBoard.length - unassignedJobs.size();
         //If numOfJobs has assigned all jobs return
         if(numOfAssigned == jobBoard.length){
             return jobBoard;
@@ -71,7 +74,7 @@ public class WorkList {
             Set<Integer> restOfJobs = new HashSet<>(unassignedJobs);
             restOfJobs.remove(job);
             jobBoard[numOfAssigned] = job;
-            int[] solution = optimizeBruteForce(restOfJobs, jobBoard, numOfAssigned+1);
+            int[] solution = optimizeBruteForce(restOfJobs, jobBoard);
             if(maxValue == null){
                 maxValue = valueOfPath(solution);
                 maxJobs = solution;
@@ -97,7 +100,7 @@ public class WorkList {
         }
         double total = 0;
         for(int i = 0; i != path.length; i++){
-            total += matrix.get(i,path[i]);
+            total += matrix.get(path[i], i);
         }
         return total;
     }

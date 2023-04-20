@@ -55,32 +55,23 @@ public class Matrix{
         }
     }
     public static void main(String[] args){
-        double[][] A = new double[2][3];
-        A[0][0] = 1;
-        A[1][0] = 0;
-        A[0][1] = 2;
-        A[1][1] = -3;
-        A[0][2] = 0;
-        A[1][2] = 1;
+        double[][] A = new double[2][2];
+        A[0][0] = 3;
+        A[1][0] = -2;
+        A[0][1] = 1;
+        A[1][1] = 0;
         Matrix a = new Matrix(A);
         a.display();
-        System.out.println();
-        System.out.println();
-        //double[][] B = new double[1][3];
-        //B[0][0] = 1;
-        //B[0][1] = 1;
-        //B[0][2] = 1;
-        //Matrix b = new Matrix(B);
-        //b.display();
-        
-        //a.display();
-        //System.out.println();
-        //System.out.println(a.findPlaceOfLeadingVariable(1));
-        //System.out.println(a.getN()+" "+a.getM());
-        //b.display();
-        //System.out.println();
-        //System.out.println(b.getN()+" "+b.getM());
-        //a.matrixMultiply(b).display();
+        double[][] B = new double[2][3];
+        B[0][0] = -1;
+        B[1][0] = 4;
+        B[0][1] = 0;
+        B[1][1] = -3;
+        B[0][2] = 2;
+        B[1][2] = -1;
+        Matrix b = new Matrix(B);
+        b.display();
+        a.matrixMultiply(b).display();
     }
     /**
      * Throw IllegalArgumentException if input is null
@@ -137,7 +128,7 @@ public class Matrix{
     }
     /**
      * @param matrix value to multiply this by.
-     * @throws IllegalArgumentException If not AXB times BX1 matricies.
+     * @throws IllegalArgumentException If not AXB times BXC matricies.
      * @throws IllegalArgumentException If 'matrix' != null.
      * @return matrix multiple of this and 'matrix'.
      * 
@@ -146,12 +137,14 @@ public class Matrix{
     public Matrix matrixMultiply(Matrix matrix){
         checkNull(matrix);
         if(getM() != matrix.getN()){
-            throw new IllegalArgumentException("not AXB times BX1 matricies.");
+            throw new IllegalArgumentException("not AXB times BXC matricies.");
         }
-        double[][] newGraph = new double[getN()][1];
-        for(int i = 0; i != getN(); i++){
-            for(int j = 0; j != getM(); j++){
-                newGraph[i][0] += graph[i][j]*matrix.get(0, j);
+        double[][] newGraph = new double[getN()][matrix.getM()];
+        for(int k = 0; k != matrix.getM(); k++){
+            for(int i = 0; i != getN(); i++){
+                for(int j = 0; j != getM(); j++){
+                    newGraph[i][k] += graph[i][j]*matrix.get(k, j);
+                }
             }
         }
         Matrix goal = new Matrix(newGraph);
