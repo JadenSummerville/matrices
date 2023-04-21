@@ -56,22 +56,69 @@ public class Matrix{
     }
     public static void main(String[] args){
         double[][] A = new double[2][2];
-        A[0][0] = 3;
-        A[1][0] = -2;
-        A[0][1] = 1;
-        A[1][1] = 0;
+        A[0][0] = 1;
+        A[1][0] = 0;
+        A[0][1] = 0;
+        A[1][1] = 1;
         Matrix a = new Matrix(A);
-        a.display();
-        double[][] B = new double[2][3];
-        B[0][0] = -1;
-        B[1][0] = 4;
-        B[0][1] = 0;
-        B[1][1] = -3;
-        B[0][2] = 2;
-        B[1][2] = -1;
+        //a.display();
+        double[][] B = new double[2][2];
+        B[0][0] = -2;
+        B[1][0] = 0;
+        B[0][1] = 8;
+        B[1][1] = 5;
         Matrix b = new Matrix(B);
-        b.display();
-        a.matrixMultiply(b).display();
+        a.matrixMultiply(a).display();;
+        //b.matrixMultiply(a.transpose()).display();;
+        //a.power(4).display();
+        //b.transpose().display();
+    }
+    /**
+     * Return the matrix to the 'power' power of this. Return null if this does not exist.
+     * 
+     * @param power the power the matrix is put to
+     * @return the matrix to the 'power' power of this. Return null if this does not exist (getM() != getN() or 'power' < 0).
+    */
+    public Matrix power(int power){
+        if(power == 1){
+            return this;
+        }if(power == 0){
+            return identityMatrix();
+        }if(power < 0 || getM() != getN()){
+            return null;
+        }
+        return power(power, this);
+    }
+    /**
+     * Returns 'matrix' to the power of 'power'
+     * 
+     * @param power the power we are finding for matrix
+     * @param matrix the matrix we are taking the power 'power' of.
+     * @requires 'power' > 0
+     * @requires 'matrix.getM()' == 'matrix.getN()'
+     * @return the matrix 'matrix' to the 'power' power.
+    */
+    private Matrix power(int power, Matrix matrix){
+        if(power == 1){
+            return matrix;
+        }if(power%2 == 1){
+            return matrix.matrixMultiply(power(power-1, matrix));
+        }
+        return power(power/2, matrix.matrixMultiply(matrix));
+    }
+    /**
+     * Return the transpose of 'this'.
+     * 
+     * @return transpose of 'this'.
+    */
+    public Matrix transpose(){
+        double[][] transpose = new double[getM()][getN()];
+        for(int i = 0; i != getM(); i++){
+            for(int j = 0; j != getN(); j++){
+                transpose[i][j] = graph[j][i];
+            }
+        }
+        return new Matrix(transpose);
     }
     /**
      * Throw IllegalArgumentException if input is null
@@ -86,11 +133,48 @@ public class Matrix{
         }
     }
     /**
+     * Get the identity matrix of 'this' or null if there is non (getM() != getN()).
+     * 
+     * @return The identity matrix of 'this' or null if non exists.
+     * 
+     *O(getM()^2)
+    */
+    public Matrix identityMatrix(){
+        if(getM() != getN()){
+            return null;
+        }
+        return identityMatrix(getM());
+    }
+    /**
+     * Make an Identity matrix that is 'sideLength'x'sideLength'.
+     * 
+     * @param sideLength sideLength of the identity matrix.
+     * @throws IllegalArgumentException iff sideLength <= 0.
+     * @requires sideLength != NaN
+     * @return the identity matrix 'sideLength'
+    */
+    public static Matrix identityMatrix(int sideLength){
+        if(sideLength <= 0){
+            throw new IllegalArgumentException("Side length must be atleast one.");
+        }
+        double[][] goal = new double[sideLength][sideLength];
+        for(int i = 0; i != sideLength; i++){
+            for(int j = 0; j != sideLength; j++){
+                if(i == j){
+                    goal[i][j] = 1;
+                }else{
+                    goal[i][j] = 0;
+                }
+            }
+        }
+        return new Matrix(goal);
+    }
+    /**
      * Return the result of matrix multiplication between this vector and 'matrix'.
      * 
      * @param matrix value to multiply this by.
      * @spec.requires no NaN inputs.
-     * @throws IllegalArgumentException If not AXB times BXC matricies.
+     * @throws IllegalArgumentException If not AXB times BX1 matricies.
      * @throws IllegalArgumentException If 'matrix' != null.
      * @return matrix multiple of this and 'matrix'.
      * 
@@ -99,7 +183,7 @@ public class Matrix{
     public Matrix matrixMultiply(double[] matrix){
         checkNull(matrix);
         if(getM() != matrix.length){
-            throw new IllegalArgumentException("not AXB times BXC matricies.");
+            throw new IllegalArgumentException("not AXB times BX1 matricies.");
         }
         double[][] newMatrix = new double[matrix.length][1];
         for(int i = 0; i != matrix.length; i++){
@@ -127,17 +211,19 @@ public class Matrix{
         return graph[0].length;
     }
     /**
-     * @param matrix value to multiply this by.
-     * @throws IllegalArgumentException If not AXB times BXC matricies.
-     * @throws IllegalArgumentException If 'matrix' != null.
-     * @return matrix multiple of this and 'matrix'.
+     * Returns the matrix multiple of two matrices. Returns null is this is impossible.
      * 
-     * O(getN()*getM())
+     * @param matrix value to multiply this by.
+     * @throws IllegalArgumentException Iff 'matrix' == null.
+     * @return matrix multiple of this and 'matrix'.
+     * @return null if not AXB times BXC matricies
+     * 
+     * O(getN()*getM()*matrix.getN())
     */
     public Matrix matrixMultiply(Matrix matrix){
         checkNull(matrix);
         if(getM() != matrix.getN()){
-            throw new IllegalArgumentException("not AXB times BXC matricies.");
+            return null;
         }
         double[][] newGraph = new double[getN()][matrix.getM()];
         for(int k = 0; k != matrix.getM(); k++){
@@ -396,16 +482,17 @@ public class Matrix{
      * 
      * 
     */
-    /*
     public Matrix swap(int row_1, int row_2){
         isARow(row_1);
         isARow(row_2);
-        //Matrix goal = add();
-        //double[] o = getRow(row_1);
-        
-        
+        double[][] matrix = cloneArray(graph);
+        for(int i = 0; i != getM(); i++){
+            double o = matrix[row_1][i];
+            matrix[row_1][i] = matrix[row_2][i];
+            matrix[row_2][i] = o;
+        }
+        return new Matrix(matrix);
     }
-    */
     /**
      * Return number of elements in this matrix
      * 
