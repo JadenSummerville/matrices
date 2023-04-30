@@ -55,20 +55,44 @@ public class Matrix{
         }
     }
     public static void main(String[] args){
-        double[][] A = new double[2][2];
+        double[][] A = new double[3][3];
         A[0][0] = 1;
         A[1][0] = 0;
+        A[2][0] = 1;
         A[0][1] = 0;
         A[1][1] = 1;
+        A[2][1] = -1;
+        A[0][2] = 1;
+        A[1][2] = -1;
+        A[2][2] = 1;
         Matrix a = new Matrix(A);
         //a.display();
-        double[][] B = new double[2][2];
-        B[0][0] = -2;
-        B[1][0] = 0;
-        B[0][1] = 8;
-        B[1][1] = 5;
+        double[][] B = new double[3][3];
+        B[0][0] = 0;
+        B[1][0] = 1;
+        B[2][0] = 1;
+        B[0][1] = 1;
+        B[1][1] = 0;
+        B[2][1] = -1;
+        B[0][2] = 1;
+        B[1][2] = -1;
+        B[2][2] = -1;
         Matrix b = new Matrix(B);
-        a.matrixMultiply(a).display();;
+        double[][] C = new double[2][2];
+        C[0][0] = 1;
+        C[1][0] = 0;
+        C[0][1] = 0;
+        C[1][1] = 0;
+        Matrix c = new Matrix(C);
+        double[][] D = new double[2][2];
+        D[0][0] = 1;
+        D[1][0] = 0;
+        D[0][1] = 0;
+        D[1][1] = 1;
+        Matrix d = new Matrix(D);
+        //a.display();
+        //b.display();
+        d.matrixMultiply(c).display();
         //b.matrixMultiply(a.transpose()).display();;
         //a.power(4).display();
         //b.transpose().display();
@@ -133,16 +157,13 @@ public class Matrix{
         }
     }
     /**
-     * Get the identity matrix of 'this' or null if there is non (getM() != getN()).
+     * Get the identity matrix of 'this'.
      * 
-     * @return The identity matrix of 'this' or null if non exists.
+     * @return The identity matrix of 'this'.
      * 
      *O(getM()^2)
     */
     public Matrix identityMatrix(){
-        if(getM() != getN()){
-            return null;
-        }
         return identityMatrix(getM());
     }
     /**
@@ -396,6 +417,40 @@ public class Matrix{
         }
     }
     /**
+     * Find and return the inverse of 'this'.
+     * 
+     * @return the inverse of this, return null if none exists.
+    */
+    public Matrix inverse(){
+        //Varify square matrix
+        if(getM() != getN()){
+            return null;
+        }
+        //Quick formula
+        if(getM() == 2){
+            // a b
+            // c d
+            double a = get(0, 0);
+            double b = get(1, 0);
+            double c = get(0, 1);
+            double d = get(1, 1);
+            // 1/(ad-bc)
+            double scale = (a*d-b*c);
+            if(scale < 0.0001 && scale > -0.0001){
+                return null;
+            }
+            double[][] matrix = new double[2][2];
+
+            matrix[0][0] = d;
+            matrix[1][0] = -c;
+            matrix[0][1] = -b;
+            matrix[1][1] = a;
+
+            return (new Matrix(matrix)).scale(1/scale);
+        }
+        throw new RuntimeException("Method not Implemented yet!");
+    }
+    /**
      * Return place of leading variable. If non exists, return -1.
      * 
      * @param row to find leadind variable
@@ -449,20 +504,24 @@ public class Matrix{
     /**
      * Return true if this is onto.
      * 
+     * (Pivot in every row)
+     * 
      * @return true iff this is onto.
     */
     public boolean isOnto(){
         // Test scaler
-        return true;
+        throw new RuntimeException("Method not Implemented yet!");
     }
     /**
-     * Return true if this is one-to-onr.
+     * Return true if this is one-to-one.
+     * 
+     * (Pivot in every column)
      * 
      * @return true iff this is one-to-one.
     */
     public boolean isOneToOne(){
         // Test scaler
-        return true;
+        throw new RuntimeException("Method not Implemented yet!");
     }
     /**
      * Return a Matrix identical to this matrix, but in reduced echelon form.
