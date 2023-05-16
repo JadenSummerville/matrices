@@ -35,48 +35,49 @@ public class Matrix{
      * @param width m of matrix
      * @param if true generate integers, else doubles.
      * @spec.requires no NaN inputs.
-     * @throws IllegalArgumentException iff 'height' or 'width' > 1.
+     * @throws IllegalArgumentException iff 'height' or 'width' < 0.
      * 
      * O('height'*'width')
     */
     Matrix(int height, int width, boolean intMatrix){
-        if(height < 1 || width < 1){
-            throw new IllegalArgumentException("Dimensions must be atleast 1X1.");
+        if(height < 0 || width < 0){
+            throw new IllegalArgumentException("Dimensions must be atleast 0X0.");
         }
         graph = new double[height][width];
         for(int i = 0; i != getN(); i++){
             for(int j = 0; j != getM(); j++){
                 if(intMatrix){
-                    graph[i][j] = random.nextInt(21)-10;
+                    graph[i][j] = random.nextInt(21);
                 }else{
-                    graph[i][j] = random.nextDouble()*20-10;
+                    graph[i][j] = random.nextDouble()*20;
                 }
             }
         }
     }
     public static void main(String[] args){
-        double[][] A = new double[3][3];
+        double[][] A = new double[3][1];
         A[0][0] = 1;
-        A[1][0] = 0;
+        A[1][0] = 2;
         A[2][0] = 1;
-        A[0][1] = 0;
-        A[1][1] = 1;
-        A[2][1] = -1;
-        A[0][2] = 1;
-        A[1][2] = -1;
-        A[2][2] = 1;
         Matrix a = new Matrix(A);
         //a.display();
-        double[][] B = new double[3][3];
-        B[0][0] = 0;
-        B[1][0] = 1;
-        B[2][0] = 1;
+        double[][] B = new double[4][4];
+        B[0][0] = 5;
         B[0][1] = 1;
-        B[1][1] = 0;
-        B[2][1] = -1;
-        B[0][2] = 1;
-        B[1][2] = -1;
-        B[2][2] = -1;
+        B[0][2] = 6;
+        B[0][3] = 0;
+        B[1][0] = 1;
+        B[1][1] = 5;
+        B[1][2] = 0;
+        B[1][3] = 1;
+        B[2][0] = 3;
+        B[2][1] = 5;
+        B[2][2] = 0;
+        B[2][3] = 1;
+        B[3][0] = 0;
+        B[3][1] = 1;
+        B[3][2] = 5;
+        B[3][3] = 0;
         Matrix b = new Matrix(B);
         double[][] C = new double[2][2];
         C[0][0] = 1;
@@ -92,10 +93,59 @@ public class Matrix{
         Matrix d = new Matrix(D);
         //a.display();
         //b.display();
-        d.matrixMultiply(c).display();
-        //b.matrixMultiply(a.transpose()).display();;
-        //a.power(4).display();
-        //b.transpose().display();
+        b.display();
+        System.out.println();
+        //d.display();
+        
+        //b.minor(1,1).display();
+        System.out.println(b.deter());
+        //b.display();
+    }
+    /**
+     * @requires NxN matrix
+    */
+    public double deter(){
+        if(getM() == 1){
+            return graph[0][0];
+        }
+        double deter = 0;
+        int mul = 1;
+        for(int i = 0; i != getM(); i++){
+            deter += mul*get(i, 0)*minor(0, i).deter();
+            mul *= -1;
+        }
+        return deter;
+    }
+    /***/
+    public Matrix minor(int n, int m){
+        double[][] array = new double[getN()-1][getM()-1];
+        insertArraySection(array, 0, 0, graph, m, n, 0, 0);//up left
+        insertArraySection(array, m, 0, graph, getM()-m-1, n, 0, m+1);//up right
+        insertArraySection(array, 0, n, graph, m, getN()-n-1, n+1, 0);//down left
+        insertArraySection(array, m, n, graph, getM()-m-1, getN()-n-1, n+1, m+1);//down right
+        return new Matrix(array);
+    
+    }
+    /**
+     * Insert a part of 2d array 'splice' into 2d array 'array'. From 2d array 'splice' take a 'width'x'height' section located at
+     * (distanceFromLeft, distanceFromTop) and insert it into 'array' at (xPlace, yPlace).
+     * 
+     * @param array array to insert mini array into
+     * @param xPlace the x cooridinate to place the [0][0] element of the mini array
+     * @param yPlace the y cooridinate to place the [0][0] element of the mini array
+     * @param splice the array to take the mini array from
+     * @param width is the width of the mini array
+     * @param height is the height of the mini array
+     * @param distanceFromTop mini array's distance from the top of splice
+     * @param distanceFromLeft mini array's distance from the left of splice
+     * @modifies array
+    */
+    private static void insertArraySection(double[][] array, int xPlace, int yPlace, double[][] splice, int width, int height, int distanceFromTop, int distanceFromLeft){
+        for (int i = 0; i != height; i++) {
+            for (int j = 0; j != width; j++) {
+                array[yPlace + i][xPlace + j] = splice[distanceFromTop + i][distanceFromLeft + j];
+            }
+        }
     }
     /**
      * Return the matrix to the 'power' power of this. Return null if this does not exist.
@@ -561,6 +611,53 @@ public class Matrix{
     */
     public int getSize(){
         return getN() * getM();
+    }
+    /**
+     * Return the currect Matrix except all negative values are multiplied by -1
+     * 
+     * @return this except all values are 0 or positive.
+    */
+    public Matrix abs(){
+        double[][] array = new double[getN()][getM()];
+        for(int i = 0; i != getN(); i++){
+            for(int j = 0; j != getM(); j++){
+                double value = get(i, j);
+                if(value < 0){
+                    value *= -1;
+                }
+                array[j][i] = value;
+            }
+        }
+        return new Matrix(array);
+    }
+    /***/
+    public Double getMax(){
+        return getMinOrMax(true);
+    }
+    /***/
+    public Double getMin(){
+        return getMinOrMax(false);
+    }
+    private Double getMinOrMax(boolean max){
+        Double val = get(0,0);
+        for(int i = 0; i != getN(); i++){
+            for(int j = 0; j != getM(); j++){
+                if(val < get(i, j) == max){
+                    val = get(i, j);
+                }
+            }
+        }
+        return val;
+    }
+    /***/
+    public Matrix add(double value){
+        double[][] array = new double[getN()][getM()];
+        for(int i = 0; i != getN(); i++){
+            for(int j = 0; j != getM(); j++){
+                array[i][j] = get(j, i) + value;
+            }
+        }
+        return new Matrix(array);
     }
     /**
      * Standard equality opperator.
