@@ -649,6 +649,14 @@ public class Matrix{
         }
         return val;
     }
+    /**
+     * Get a copy of the current matrix
+     * 
+     * @return Matrix 'this' as double[][]
+    */
+    public double[][] getDoubleArray(){
+        return cloneArray(graph);
+    }
     /***/
     public Matrix add(double value){
         double[][] array = new double[getN()][getM()];
