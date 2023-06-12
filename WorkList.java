@@ -46,13 +46,13 @@ public class WorkList {
         array[3][1] = 20.0;
         array[3][2] = 15.0;
         array[3][3] = 10.0;
-        WorkList a = new WorkList(130);
+        WorkList a = new WorkList(5);
         a.matrix.display();
         int[] arr = a.munkres();
-        //int[] arr2 = a.optimizeBruteForce();
+        //int[] arr2 = a.branchAndBound(true);
 
         for(int i = 0; i != a.matrix.getM(); i++){
-            System.out.println(arr[i]);
+            System.out.println(arr[i]/* + " " + arr2[i]*/);
         }
         //WorkList a = new WorkList(18);
         //a.matrix.display();
